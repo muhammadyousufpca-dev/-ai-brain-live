@@ -21,7 +21,14 @@ const GEMINI_URL =
   ":generateContent";
 
 app.use(express.json({ limit: "16kb" }));
-app.use(express.static(path.join(__dirname, "public"), { maxAge: "1h" }));
+
+// NOTE (root layout): GitHub web upload does not handle folders well, so
+// index.html lives at the repo ROOT (not in public/). The page is a single
+// self-contained file (no other local assets), so serve it directly at "/".
+// /api/ask-topic and /api/health below are unaffected.
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
 
 // ---- Light rate limit: 20 topic requests per IP per rolling hour,
 // so one visitor cannot burn the whole free Gemini quota. ----
